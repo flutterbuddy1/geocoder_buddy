@@ -1,4 +1,4 @@
-![](./banner.png)
+![](https://raw.githubusercontent.com/flutterbuddy1/geocoder_buddy/main/banner.png)
 
 # Features
 * Easy To Use

@@ -1,6 +1,6 @@
 name: geocoder_buddy
 description: Forward, Reverse geocoding and Search Address without any apikey.
-version: 1.0.0
+version: 1.1.1
 homepage: https://github.com/flutterbuddy1/geocoder_buddy
 repository: https://github.com/flutterbuddy1/geocoder_buddy
 issue_tracker: https://github.com/flutterbuddy1/geocoder_buddy/issues

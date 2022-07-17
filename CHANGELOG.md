@@ -1,4 +1,4 @@
-## 1.0.0
+## 1.1.1
 
 * Geocoding Without Any Apikey
 * Searching Addresses
