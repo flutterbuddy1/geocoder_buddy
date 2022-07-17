@@ -1,8 +1,6 @@
-import 'package:geocoder_buddy/models/GBData.dart';
-import 'package:geocoder_buddy/models/GBLatLng.dart';
-import 'package:geocoder_buddy/models/GBSearchData.dart';
-import 'package:geocoder_buddy/models/MapData.dart';
-import 'package:geocoder_buddy/services/NetworkService.dart';
+import 'package:geocoder_buddy/geocoder_buddy.dart';
+import 'package:geocoder_buddy/src/models/MapData.dart';
+import 'package:geocoder_buddy/src/services/NetworkService.dart';
 
 class GeocoderBuddy {
   static Future<List<GBSearchData>> query(String address) async {

@@ -1,6 +1,6 @@
-import 'package:geocoder_buddy/models/GBData.dart';
-import 'package:geocoder_buddy/models/GBLatLng.dart';
-import 'package:geocoder_buddy/models/MapData.dart';
+import 'package:geocoder_buddy/src/models/GBData.dart';
+import 'package:geocoder_buddy/src/models/GBLatLng.dart';
+import 'package:geocoder_buddy/src/models/MapData.dart';
 import 'package:http/http.dart' as http;
 
 const PATH = "https://nominatim.openstreetmap.org";

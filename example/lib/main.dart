@@ -1,9 +1,6 @@
 import 'package:example/SearchDataDetails.dart';
 import 'package:flutter/material.dart';
-import 'package:geocoder_buddy/models/GBData.dart';
-import 'package:geocoder_buddy/models/GBLatLng.dart';
-import 'package:geocoder_buddy/models/GBSearchData.dart';
-import 'package:geocoder_buddy/services/GeocoderBuddy.dart';
+import 'package:geocoder_buddy/geocoder_buddy.dart';
 import 'package:json_tree_viewer/json_tree_viewer.dart';
 
 void main() {
