@@ -31,9 +31,9 @@ class GBSearchData {
         placeId: json["place_id"],
         id: json["osm_id"],
         boundingbox: List<String>.from(json["boundingbox"].map((x) => x)),
-        lat: json["lat"],
-        lon: json["lon"],
-        displayName: json["display_name"],
+        lat: json["lat"] ?? "",
+        lon: json["lon"] ?? "",
+        displayName: json["display_name"] ?? "",
         placeRank: json["place_rank"],
         importance: json["importance"].toDouble(),
       );

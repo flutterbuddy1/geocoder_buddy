@@ -34,11 +34,11 @@ class GBData {
         placeId: json["place_id"],
         osmType: json["osm_type"],
         id: json["osm_id"],
-        lat: json["lat"],
-        lon: json["lon"],
+        lat: json["lat"] ?? "",
+        lon: json["lon"] ?? "",
         placeRank: json["place_rank"],
         importance: json["importance"].toDouble(),
-        displayName: json["display_name"],
+        displayName: json["display_name"] ?? "",
         address: Address.fromJson(json["address"]),
         boundingbox: List<String>.from(json["boundingbox"].map((x) => x)),
       );
@@ -81,15 +81,15 @@ class Address {
   String countryCode;
 
   factory Address.fromJson(Map<String, dynamic> json) => Address(
-        road: json["road"],
-        village: json["village"],
-        county: json["county"],
-        stateDistrict: json["state_district"],
-        state: json["state"],
-        iso31662Lvl4: json["ISO3166-2-lvl4"],
-        postcode: json["postcode"],
-        country: json["country"],
-        countryCode: json["country_code"],
+        road: json["road"] ?? "",
+        village: json["village"] ?? "",
+        county: json["county"] ?? "",
+        stateDistrict: json["state_district"] ?? "",
+        state: json["state"] ?? "",
+        iso31662Lvl4: json["ISO3166-2-lvl4"] ?? "",
+        postcode: json["postcode"] ?? "",
+        country: json["country"] ?? "",
+        countryCode: json["country_code"] ?? "",
       );
 
   Map<String, dynamic> toJson() => {
