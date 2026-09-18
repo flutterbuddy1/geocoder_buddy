@@ -1,7 +1,18 @@
 // Geocoder Buddy Data Model
 import 'dart:convert';
+import 'package:geocoder_buddy/src/models/GeocoderException.dart';
 
-GBData gbDataFromJson(String str) => GBData.fromJson(json.decode(str));
+GBData gbDataFromJson(String str) {
+  final decoded = json.decode(str);
+  if (decoded is Map<String, dynamic>) {
+    if (decoded.containsKey('error')) {
+      throw GeocoderException(
+          decoded['error']?.toString() ?? 'Unable to geocode');
+    }
+    return GBData.fromJson(decoded);
+  }
+  throw GeocoderException('Invalid response from geocoder service');
+}
 
 String gbDataToJson(GBData data) => json.encode(data.toJson());
 
@@ -17,6 +28,7 @@ class GBData {
     required this.displayName,
     required this.address,
     required this.boundingbox,
+    this.raw = const {},
   });
 
   int placeId;
@@ -29,18 +41,33 @@ class GBData {
   String displayName;
   Address address;
   List<String> boundingbox;
+  Map<String, dynamic> raw;
 
   factory GBData.fromJson(Map<String, dynamic> json) => GBData(
-        placeId: json["place_id"],
-        osmType: json["osm_type"],
-        id: json["osm_id"],
-        lat: json["lat"] ?? "",
-        lon: json["lon"] ?? "",
-        placeRank: json["place_rank"],
-        importance: json["importance"].toDouble(),
-        displayName: json["display_name"] ?? "",
-        address: Address.fromJson(json["address"]),
-        boundingbox: List<String>.from(json["boundingbox"].map((x) => x)),
+        placeId: (json["place_id"] is num)
+            ? (json["place_id"] as num).toInt()
+            : int.tryParse(json["place_id"]?.toString() ?? "") ?? 0,
+        osmType: json["osm_type"]?.toString() ?? "",
+        id: (json["osm_id"] is num)
+            ? (json["osm_id"] as num).toInt()
+            : int.tryParse(json["osm_id"]?.toString() ?? "") ?? 0,
+        lat: json["lat"]?.toString() ?? "",
+        lon: json["lon"]?.toString() ?? "",
+        placeRank: (json["place_rank"] is num)
+            ? (json["place_rank"] as num).toInt()
+            : int.tryParse(json["place_rank"]?.toString() ?? "") ?? 0,
+        importance: (json["importance"] is num)
+            ? (json["importance"] as num).toDouble()
+            : double.tryParse(json["importance"]?.toString() ?? "") ?? 0.0,
+        displayName: json["display_name"]?.toString() ?? "",
+        address: json["address"] is Map<String, dynamic>
+            ? Address.fromJson(json["address"] as Map<String, dynamic>)
+            : Address.empty(),
+        boundingbox: json["boundingbox"] is List
+            ? List<String>.from(
+                (json["boundingbox"] as List).map((x) => x?.toString() ?? ""))
+            : <String>[],
+        raw: Map<String, dynamic>.from(json),
       );
 
   Map<String, dynamic> toJson() => {
@@ -59,19 +86,28 @@ class GBData {
 
 class Address {
   Address({
-    required this.road,
-    required this.houseNumber,
-    required this.village,
-    required this.city,
-    required this.municipality,
-    required this.county,
-    required this.stateDistrict,
-    required this.state,
-    required this.iso31662Lvl4,
-    required this.postcode,
-    required this.country,
-    required this.countryCode,
+    this.road = "",
+    this.houseNumber = "",
+    this.village = "",
+    this.city = "",
+    this.municipality = "",
+    this.county = "",
+    this.stateDistrict = "",
+    this.state = "",
+    this.iso31662Lvl4 = "",
+    this.postcode = "",
+    this.country = "",
+    this.countryCode = "",
+    this.suburb = "",
+    this.neighbourhood = "",
+    this.quarter = "",
+    this.hamlet = "",
+    this.town = "",
+    this.cityDistrict = "",
+    this.rawAddress = const {},
   });
+
+  factory Address.empty() => Address();
 
   String road;
   String houseNumber;
@@ -85,22 +121,40 @@ class Address {
   String postcode;
   String country;
   String countryCode;
+  String suburb;
+  String neighbourhood;
+  String quarter;
+  String hamlet;
+  String town;
+  String cityDistrict;
+  Map<String, dynamic> rawAddress;
 
-  factory Address.fromJson(Map<String, dynamic> json) => Address(
-        road: json["road"] ?? "",
-        village: json["village"] ?? "",
-        houseNumber: json["houseNumber"] ?? "",
-        village: json["village"] ?? "",
-        city: json["city"] ?? "",
-        municipality: json["municipality"] ?? "",
-        county: json["county"] ?? "",
-        stateDistrict: json["state_district"] ?? "",
-        state: json["state"] ?? "",
-        iso31662Lvl4: json["ISO3166-2-lvl4"] ?? "",
-        postcode: json["postcode"] ?? "",
-        country: json["country"] ?? "",
-        countryCode: json["country_code"] ?? "",
-      );
+  factory Address.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return Address.empty();
+    return Address(
+      road: json["road"]?.toString() ?? "",
+      houseNumber: json["house_number"]?.toString() ??
+          json["houseNumber"]?.toString() ??
+          "",
+      village: json["village"]?.toString() ?? "",
+      city: json["city"]?.toString() ?? "",
+      municipality: json["municipality"]?.toString() ?? "",
+      county: json["county"]?.toString() ?? "",
+      stateDistrict: json["state_district"]?.toString() ?? "",
+      state: json["state"]?.toString() ?? "",
+      iso31662Lvl4: json["ISO3166-2-lvl4"]?.toString() ?? "",
+      postcode: json["postcode"]?.toString() ?? "",
+      country: json["country"]?.toString() ?? "",
+      countryCode: json["country_code"]?.toString() ?? "",
+      suburb: json["suburb"]?.toString() ?? "",
+      neighbourhood: json["neighbourhood"]?.toString() ?? "",
+      quarter: json["quarter"]?.toString() ?? "",
+      hamlet: json["hamlet"]?.toString() ?? "",
+      town: json["town"]?.toString() ?? "",
+      cityDistrict: json["city_district"]?.toString() ?? "",
+      rawAddress: Map<String, dynamic>.from(json),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         "road": road,
@@ -115,5 +169,11 @@ class Address {
         "postcode": postcode,
         "country": country,
         "country_code": countryCode,
+        if (suburb.isNotEmpty) "suburb": suburb,
+        if (neighbourhood.isNotEmpty) "neighbourhood": neighbourhood,
+        if (quarter.isNotEmpty) "quarter": quarter,
+        if (hamlet.isNotEmpty) "hamlet": hamlet,
+        if (town.isNotEmpty) "town": town,
+        if (cityDistrict.isNotEmpty) "city_district": cityDistrict,
       };
 }

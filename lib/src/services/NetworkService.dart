@@ -1,34 +1,88 @@
 import 'package:geocoder_buddy/src/models/GBData.dart';
 import 'package:geocoder_buddy/src/models/GBLatLng.dart';
+import 'package:geocoder_buddy/src/models/GeocoderException.dart';
 import 'package:geocoder_buddy/src/models/MapData.dart';
 import 'package:http/http.dart' as http;
 
-const PATH = "https://nominatim.openstreetmap.org";
+const String nominatimHost = "nominatim.openstreetmap.org";
 
 class NetworkService {
-  static Future<List<MapData>> searhAddress(String query) async {
-    var request =
-        http.Request('GET', Uri.parse("$PATH/search?q=$query&format=jsonv2"));
-    http.StreamedResponse response = await request.send();
+  /// Default User-Agent sent with requests to comply with Nominatim usage policy.
+  static String userAgent =
+      'GeocoderBuddy/1.0.2 (Flutter; https://github.com/flutterbuddy1/geocoder_buddy)';
+
+  /// Searches for places matching the [query].
+  /// Optionally specify [language] (e.g. 'en', 'ar', 'fr') for localized results.
+  static Future<List<MapData>> searchAddress(
+    String query, {
+    String? language,
+  }) async {
+    final queryParams = <String, String>{
+      'q': query,
+      'format': 'jsonv2',
+    };
+    if (language != null && language.trim().isNotEmpty) {
+      queryParams['accept-language'] = language.trim();
+    }
+
+    final uri = Uri.https(nominatimHost, '/search', queryParams);
+    final headers = <String, String>{
+      'User-Agent': userAgent,
+      'Accept': 'application/json',
+      if (language != null && language.trim().isNotEmpty)
+        'Accept-Language': language.trim(),
+    };
+
+    final response = await http.get(uri, headers: headers);
     if (response.statusCode == 200) {
-      var data = await response.stream.bytesToString();
-      return mapDataFromJson(data);
+      return mapDataFromJson(response.body);
     } else {
-      throw Exception(response.reasonPhrase);
+      throw GeocoderException(
+        'Search request failed: ${response.reasonPhrase ?? "HTTP Error"}',
+        statusCode: response.statusCode,
+      );
     }
   }
 
-  static Future<GBData> getDetails(GBLatLng pos) async {
-    var request = http.Request('GET',
-        Uri.parse('$PATH/reverse?lat=${pos.lat}&lon=${pos.lng}&format=jsonv2'));
+  /// Backwards-compatible alias for [searchAddress].
+  @Deprecated('Use searchAddress instead')
+  static Future<List<MapData>> searhAddress(
+    String query, {
+    String? language,
+  }) =>
+      searchAddress(query, language: language);
 
-    http.StreamedResponse response = await request.send();
+  /// Retrieves geocoding details for the given [pos] coordinates.
+  /// Optionally specify [language] (e.g. 'en', 'ar', 'fr') for localized results.
+  static Future<GBData> getDetails(
+    GBLatLng pos, {
+    String? language,
+  }) async {
+    final queryParams = <String, String>{
+      'lat': pos.lat.toString(),
+      'lon': pos.lng.toString(),
+      'format': 'jsonv2',
+    };
+    if (language != null && language.trim().isNotEmpty) {
+      queryParams['accept-language'] = language.trim();
+    }
 
+    final uri = Uri.https(nominatimHost, '/reverse', queryParams);
+    final headers = <String, String>{
+      'User-Agent': userAgent,
+      'Accept': 'application/json',
+      if (language != null && language.trim().isNotEmpty)
+        'Accept-Language': language.trim(),
+    };
+
+    final response = await http.get(uri, headers: headers);
     if (response.statusCode == 200) {
-      var data = await response.stream.bytesToString();
-      return gbDataFromJson(data);
+      return gbDataFromJson(response.body);
     } else {
-      throw Exception(response.reasonPhrase);
+      throw GeocoderException(
+        'Reverse geocoding request failed: ${response.reasonPhrase ?? "HTTP Error"}',
+        statusCode: response.statusCode,
+      );
     }
   }
 }

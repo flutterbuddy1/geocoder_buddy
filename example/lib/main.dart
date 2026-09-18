@@ -61,7 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
       isLoading = false;
       details = data.toJson();
     });
-    print(data.address.village);
+      debugPrint(data.address.village);
   }
 
   @override
@@ -78,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               Text(
                 "Search Location",
-                style: Theme.of(context).textTheme.headline3,
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
               Container(
                 padding: const EdgeInsets.all(20),
@@ -98,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           content: Text("Please Enter Location")));
                     }
                   },
-                  child: Text("Search")),
+                  child: const Text("Search")),
               SizedBox(
                 height: 300,
                 child: !isSearching
@@ -127,7 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               Text(
                 "Lat/Lng to Details",
-                style: Theme.of(context).textTheme.headline3,
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
               Container(
                 padding: const EdgeInsets.all(20),

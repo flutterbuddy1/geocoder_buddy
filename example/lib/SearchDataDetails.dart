@@ -3,8 +3,8 @@ import 'package:geocoder_buddy/geocoder_buddy.dart';
 import 'package:json_tree_viewer/json_tree_viewer.dart';
 
 class SearchDataDetails extends StatefulWidget {
-  GBSearchData data;
-  SearchDataDetails({Key? key, required this.data}) : super(key: key);
+  final GBSearchData data;
+  const SearchDataDetails({Key? key, required this.data}) : super(key: key);
 
   @override
   State<SearchDataDetails> createState() => _SearchDataDetailsState();
@@ -16,12 +16,11 @@ class _SearchDataDetailsState extends State<SearchDataDetails> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     init();
   }
 
-  init() async {
+  Future<void> init() async {
     setState(() {
       isLoading = true;
     });
@@ -36,9 +35,9 @@ class _SearchDataDetailsState extends State<SearchDataDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Search Item Details"),
+        title: const Text("Search Item Details"),
       ),
-      body: Container(
+      body: SizedBox(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
         child: !isLoading

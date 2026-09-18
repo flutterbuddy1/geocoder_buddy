@@ -1,7 +1,20 @@
 import 'dart:convert';
+import 'package:geocoder_buddy/src/models/GeocoderException.dart';
 
-List<GBSearchData> bgSearchDataFromJson(String str) => List<GBSearchData>.from(
-    json.decode(str).map((x) => GBSearchData.fromJson(x)));
+List<GBSearchData> bgSearchDataFromJson(String str) {
+  final decoded = json.decode(str);
+  if (decoded is List) {
+    return List<GBSearchData>.from(
+      decoded.whereType<Map<String, dynamic>>().map(
+            (x) => GBSearchData.fromJson(x),
+          ),
+    );
+  }
+  if (decoded is Map<String, dynamic> && decoded.containsKey('error')) {
+    throw GeocoderException(decoded['error']?.toString() ?? 'Unable to geocode');
+  }
+  return <GBSearchData>[];
+}
 
 String bgSearchDataToJson(List<GBSearchData> data) =>
     json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
@@ -28,14 +41,25 @@ class GBSearchData {
   double importance;
 
   factory GBSearchData.fromJson(Map<String, dynamic> json) => GBSearchData(
-        placeId: json["place_id"],
-        id: json["osm_id"],
-        boundingbox: List<String>.from(json["boundingbox"].map((x) => x)),
-        lat: json["lat"] ?? "",
-        lon: json["lon"] ?? "",
-        displayName: json["display_name"] ?? "",
-        placeRank: json["place_rank"],
-        importance: json["importance"].toDouble(),
+        placeId: (json["place_id"] is num)
+            ? (json["place_id"] as num).toInt()
+            : int.tryParse(json["place_id"]?.toString() ?? "") ?? 0,
+        id: (json["osm_id"] is num)
+            ? (json["osm_id"] as num).toInt()
+            : int.tryParse(json["osm_id"]?.toString() ?? "") ?? 0,
+        boundingbox: json["boundingbox"] is List
+            ? List<String>.from(
+                (json["boundingbox"] as List).map((x) => x?.toString() ?? ""))
+            : <String>[],
+        lat: json["lat"]?.toString() ?? "",
+        lon: json["lon"]?.toString() ?? "",
+        displayName: json["display_name"]?.toString() ?? "",
+        placeRank: (json["place_rank"] is num)
+            ? (json["place_rank"] as num).toInt()
+            : int.tryParse(json["place_rank"]?.toString() ?? "") ?? 0,
+        importance: (json["importance"] is num)
+            ? (json["importance"] as num).toDouble()
+            : double.tryParse(json["importance"]?.toString() ?? "") ?? 0.0,
       );
 
   Map<String, dynamic> toJson() => {
